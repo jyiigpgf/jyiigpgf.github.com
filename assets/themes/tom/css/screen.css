@@ -152,6 +152,10 @@ ul.posts {
 
 }
 
+#post img {
+    max-width: 600px;
+}
+
   /* standard */
 
   #post pre {
