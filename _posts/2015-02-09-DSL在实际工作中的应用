@@ -1,0 +1,110 @@
+---
+layout: post
+title: "DSL在实际工作中的应用"
+description: ""
+category: DSL
+tags: []
+---
+
+DSL：领域特定语言（domain-specific languages，简称DSL）
+背景：因要写weapp界面渲染的json文件，每天工作都在写json
+weapp: 写好一个界面json文件，H5、Android、iOS都可以渲染
+
+因工作需要，在前阵子的工作中，要频繁的写json文件，
+大家都知道json是用来传输数据的，格式极为简洁和“易读”。
+但是，当你要大量的手动书写，并大量越读的，有时候还需要调试的时候。
+原本json的好处，都会变成坏处。
+
+1. json不支持注释，当需要调试程序，需要临时改变一个值的时候，没地方保存老值。
+   （唉唉唉，我原来的值是啥来的？）
+2. 同第一条，不支持注释，就没办法写“注释”。
+   （这里有一个坑，我怎么告诉下一个维护的小朋友？）
+3. json不支持“代码”的复用，没有类c语言的宏，没办法写引用。
+   （一样的代码，让程序改5个地方，大家都懂得。）
+4. json是个树结构，不支持引用带来的结果就是，树的层次很深，很难阅读。
+   （上千行的json读起来，直接醉了。。。）
+
+鉴于以上问题，又不想天天被json搞得头晕眼花，最主要的就是眼花。
+自己写了一个小工具，主要是用DSL思想，来解决以上问题。
+
+DSL语法：以json为基础，增加以下功能。
+1. 注释功能。
+2. block声明。
+3. 段落引用block和单行中引用block。
+
+DSL转换脚本：将DSL文件，转换为标准json。
+
+代码示例：
+source.rjson:
+<pre><code>
+#def区
+
+def welcome_image_url
+	http://xxx.png
+end
+
+def welcome_image
+{
+	"type": "image",
+    "dataBinding": {
+        "url": "#{welcome_image_url}"
+    }
+}
+end
+
+def hello_world_str
+	hello_world
+end
+
+#json区
+{
+	"type": "container",
+	"styleBinding": {
+	    "layout": "linearLayout",
+	    "orientation": "horizontal"
+    },
+    "subViews" : [
+		#{welcome_image}
+		,
+		{
+			"type": "label",
+			"dataBinding": {
+				"value": "#{hello_world_str}"
+			}
+		}
+    ]
+}
+</code></pre>
+
+dest.json:
+<pre><code>
+{
+  "type": "container",
+  "styleBinding": {
+    "layout": "linearLayout",
+    "orientation": "horizontal"
+  },
+  "subViews": [
+    {
+      "type": "image",
+      "dataBinding": {
+        "url": "http://xxx.png"
+      }
+    },
+    {
+      "type": "label",
+      "dataBinding": {
+        "value": "hello_world"
+      }
+    }
+  ]
+}
+</code></pre>
+
+有需要转换脚本的小伙伴，可以去[我的github](https://github.com/jyiigpgf/RJson.rb/blob/master/README.md)下载。
+有对DSL感兴趣的，可以加我旺旺，一起讨论、一起玩。
+
+
+PS：自动忽略weapp用json的问题，咱们的需求就是要写json。= =~
+
+{% include JB/setup %}
